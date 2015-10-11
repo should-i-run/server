@@ -88,7 +88,6 @@
        (str/replace (url-safe (station-url (:originStationName trip))) "%26" "and")))
 
 (defn fetch [trip]
-  (println (build-url trip))
   (let [url (build-url trip)]
     (let [data (if (cache/has? @muni-cache (cache-item-name url))
                  (cache/lookup @muni-cache (cache-item-name url))
