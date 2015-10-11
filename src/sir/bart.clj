@@ -42,7 +42,7 @@
 
 (defn get-departure-times [body station-code]
   (do
-    (equal? "" (get-etd-for-eol body station-code)
+    (= "" (get-etd-for-eol body station-code)
       (println "bart - no etd for eol" station-code body))
     (get-minutes-from-etd (get-etd-for-eol body station-code))))
 
