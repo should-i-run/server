@@ -91,13 +91,13 @@
                        fresh-data))]
           (let [{:keys [status headers body error]} data]
             (if error
-              {:status 418
-               :body "fail"}
               (do (println "google api error: " url error)
-                  {:status 200
-                   :headers {"Content-Type" "application/json"}
-                   ; todo handle errors parsing results?
-                   :body (generate-string (parse-results (parse-string body true)))}))))))
+                  {:status 418
+                   :body "fail"})
+              {:status 200
+               :headers {"Content-Type" "application/json"}
+               ; todo handle errors parsing results?
+               :body (generate-string (parse-results (parse-string body true)))})))))
     {:status 400
      :body "bad request"}))
 
