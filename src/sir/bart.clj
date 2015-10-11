@@ -31,16 +31,20 @@
       (:content etd))))
 
 (defn get-etd-for-eol [body station-code]
-  (nth (filter
-    (fn [etd]
-      (= (str/lower-case (get-in etd [:content 1 :content 0])) station-code))
-    (->>
-      body
-      xml-seq
-      (filter #(= (:tag %) :etd)))) 0))
+  (nth (filter (fn [etd]
+                  (= (str/lower-case (get-in etd [:content 1 :content 0])) station-code))
+               (->>
+                body
+                xml-seq
+                (filter #(= (:tag %) :etd))))
+        0
+        ""))
 
 (defn get-departure-times [body station-code]
-  (get-minutes-from-etd (get-etd-for-eol body station-code)))
+  (do
+    (equal? "" (get-etd-for-eol body station-code)
+      (println "bart - no etd for eol" station-code body))
+    (get-minutes-from-etd (get-etd-for-eol body station-code))))
 
 (defn process-data [trip body]
   (gen-trips (get-departure-times body (:eolStationCode trip)) trip))
