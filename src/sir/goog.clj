@@ -114,6 +114,7 @@
   (some #(= (:agency %) "caltrain") route))
 
 (defn caltrainify [route]
+  ; TODO why is this here?
   (filter #(= (:agency %) "caltrain") route))
 
 ; TODO:

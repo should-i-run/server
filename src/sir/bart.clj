@@ -117,6 +117,7 @@
 
 (defn normalize-name [string]
   (-> string
+      (str/replace " Station" "")
       (str/replace " " "-")
       (str/replace "St." "St")
       (str/replace  "/" "-")
