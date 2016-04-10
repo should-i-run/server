@@ -1,4 +1,4 @@
-(ns sir.bart
+(ns sir.simpleBart
   (:use cheshire.core)
   (:require [org.httpkit.client :as http]
             [clojure.xml :as xml]
@@ -10,9 +10,6 @@
     (java.io.ByteArrayInputStream. (.getBytes s))))
 
 (def bart-cache (atom (cache/ttl-cache-factory {} :ttl (* 1000 60))))
-
-(defn cache-item-name [{code :originStationCode}]
-  code)
 
 (defn gen-trips [times trip]
   (map
@@ -30,43 +27,48 @@
       #(= (:tag %) :estimate)
       (:content etd))))
 
-(defn get-etd-for-eol [body station-code]
-  (nth (filter (fn [etd]
-                  (= (str/lower-case (get-in etd [:content 1 :content 0])) station-code))
-               (->>
-                body
-                xml-seq
-                (filter #(= (:tag %) :etd))))
+(defn get-etd-for-eol [body]
+  (nth
+         (->>
+          body
+          xml-seq
+          (filter #(= (:tag %) :etd)))
         0
         ""))
 
-(defn get-departure-times [body station-code]
+(defn get-departure-times [body]
   (do
-    (if (= "" (get-etd-for-eol body station-code))
-      (println "bart - no etd for eol" station-code body))
-    (get-minutes-from-etd (get-etd-for-eol body station-code))))
+    (println (get-etd-for-eol body))
+    (get-minutes-from-etd (get-etd-for-eol body))))
 
-(defn process-data [trip body]
-  (gen-trips (get-departure-times body (:eolStationCode trip)) trip))
+
+(defn process-data [body]
+  (get-departure-times body))
 
 (defn build-url
-  [trip]
+  [originStationCode]
   (str "http://api.bart.gov/api/etd.aspx?cmd=etd&orig="
-       (:originStationCode trip)
-       "&key=" (System/getenv "BART_API")))
+       originStationCode
+       "&key=" (or (System/getenv "BART_API") "ZELI-U2UY-IBKQ-DT35")))
 
-(defn fetch [trip]
-  (let [url (build-url trip)
-        data (if (cache/has? @bart-cache (cache-item-name trip))
-               (cache/lookup @bart-cache (cache-item-name trip))
+(defn fetch [{originStationCode :origin}]
+  (let [url (build-url originStationCode)
+        data (if (cache/has? @bart-cache originStationCode)
+               (cache/lookup @bart-cache originStationCode)
                (let [fresh-data @(http/get url)]
-                 (swap! bart-cache assoc (cache-item-name trip) fresh-data)
+                 (swap! bart-cache assoc originStationCode fresh-data)
                  fresh-data))]
     (let [{body :body error :error} data]
       (if error
         (do (println "bart api error:" url error)
-             [])
-        (into [] (process-data trip (parse body)))))))
+            {:status 418
+             :body "bart api error"})
+        (do
+          (println (build-url originStationCode))
+          ; (into [] (process-data (parse body))))))))
+          {:status 200
+            :headers {"Content-Type" "application/json"}
+            :body (generate-string (process-data (parse body)))})))))
 
 (def station-data {
   :12th-St-Oakland-City-Center "12th"

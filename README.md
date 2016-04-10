@@ -8,11 +8,14 @@ You will need [Leiningen][] 2.0.0 or above installed.
 
 [leiningen]: https://github.com/technomancy/leiningen
 
-## Running
+## Development
 
-To start a web server for the application, run:
+To start a hot-reloading server, run:
 
-    lein ring server
+    `lein ring server-headless`
+
+## Deploy
+`git push heroku master`
 
 ## License
 

@@ -12,6 +12,7 @@
             [sir.goog :as goog]
             [sir.bart :as bart]
             [sir.muni :as muni]
+            [sir.simpleBart :as simpleBart]
             [environ.core :refer [env]]
             [compojure.route :as route]))
 
@@ -104,6 +105,7 @@
 (defroutes app-routes
   (GET "/" [] "Hello World")
   (POST "/" {body :body params :params} (fetch-trips body params))
+  (POST "/bart" {params :params} (simpleBart/fetch params))
   (route/not-found "Not Found"))
 
 (def app
