@@ -11,6 +11,7 @@
                  [javax.servlet/servlet-api "2.5"]
                  [environ "1.0.0"]
                  [org.clojure/core.cache "0.6.4"]
+                 [org.clojure/math.numeric-tower "0.0.4"]
                  [cheshire "4.0.3"]]
   :plugins [[lein-ring "0.8.13"]]
   :ring {:handler sir.handler/app
