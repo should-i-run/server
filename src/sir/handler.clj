@@ -105,9 +105,9 @@
 
 (defroutes app-routes
   (GET "/" [] "Hello World")
-  (POST "/stations" {body :body params :params} (bartStations/get-closest-stations body))
+  (POST "/stations" {body :body} (bartStations/get-closest-stations body))
   (POST "/" {body :body params :params} (fetch-trips body params))
-  (POST "/bart" {params :params} (simpleBart/fetch params))
+  (POST "/bart" {body :body} (simpleBart/fetch-all body))
   (route/not-found "Not Found"))
 
 (def app

@@ -4,6 +4,7 @@
             [clojure.xml :as xml]
             [clojure.core.cache :as cache]
             [clojure.string :as str]
+            [sir.bartStations :as bartStations]
             [sir.bart :as bart]))
 
 (defn parse [s]
@@ -15,7 +16,7 @@
   (let [abbreviation (filter
                         #(= (:tag %) :abbreviation)
                         (:content etd))]
-    (get-in (nth abbreviation 0) [:content 0 ])))
+    (get-in (nth abbreviation 0) [:content 0])))
 
 (defn get-minutes-from-etd [etd]
   (map
@@ -30,25 +31,33 @@
     xml-seq
     (filter #(= (:tag %) :etd))))
 
-(defn get-departure-times [body]
+(defn gdt [body]
   (map
     (fn [etd]
       { :code (get-code-from-etd etd)
-      :departures (get-minutes-from-etd etd)})
+       :departures (get-minutes-from-etd etd)})
     (get-etds body)))
 
-(defn build-url
-  [originStationCode]
-  (str "http://api.bart.gov/api/etd.aspx?cmd=etd&orig="
-       originStationCode
-       "&key=" (System/getenv "BART_API") "ZELI-U2UY-IBKQ-DT35"))
+(defn get-departure-times [body]
+  (do
+    (println (gdt body))
+    (gdt body)))
 
-(defn fetch [{originStationCode :origin}]
-  (let [url (build-url originStationCode)
-        data (if (cache/has? @bart/bart-cache originStationCode)
-               (cache/lookup @bart/bart-cache originStationCode)
+
+(defn build-url
+  [stationCode]
+  (str "http://api.bart.gov/api/etd.aspx?cmd=etd&orig="
+       stationCode
+       "&key=" (or (System/getenv "BART_API") "ZELI-U2UY-IBKQ-DT35")))
+
+(defn fetch-station
+  [station]
+  (let [url (build-url (:abbr station))
+        stationCode (:abbr station)
+        data (if (cache/has? @bart/bart-cache stationCode)
+               (cache/lookup @bart/bart-cache stationCode)
                (let [fresh-data @(http/get url)]
-                 (swap! bart/bart-cache assoc originStationCode fresh-data)
+                 (swap! bart/bart-cache assoc stationCode fresh-data)
                  fresh-data))]
     (let [{body :body error :error} data]
       (if error
@@ -56,7 +65,15 @@
             {:status 418
              :body "bart api error"})
         (do
-          (println (build-url originStationCode))
-          {:status 200
-            :headers {"Content-Type" "application/json"}
-            :body (generate-string (get-departure-times (parse body)))})))))
+          (println (build-url stationCode))
+          (conj station
+                {:departures
+                            (get-departure-times (parse body))}))))))
+
+(defn fetch-all
+  [loc]
+  {:status 200
+    :headers {"Content-Type" "application/json"}
+    :body (generate-string (map fetch-station (bartStations/get-closest-stations loc)))})
+
+;(fetch-station {:abbr "pitt"})

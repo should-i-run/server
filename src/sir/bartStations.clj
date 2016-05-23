@@ -51,11 +51,10 @@
 (defn find-closest-stations
   [body lat lng]
   (take 3
-    (map :abbr
-      (sort-by :distance
-        (calc-distances
-          (map flatten-station (get-stations body))
-          lat lng)))))
+    (sort-by :distance
+      (calc-distances
+        (map flatten-station (get-stations body))
+        lat lng))))
 
 (defn build-url
   []
