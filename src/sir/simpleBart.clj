@@ -7,35 +7,73 @@
             [sir.bartStations :as bartStations]
             [sir.bart :as bart]))
 
-(defn parse [s]
+(defn parse
+  [s]
   (xml/parse
     (java.io.ByteArrayInputStream. (.getBytes s))))
 
 ; {:tag :abbreviation, :attrs nil, :content [DALY]}
-(defn get-code-from-etd [etd]
+(defn get-code-from-etd
+  [etd]
   (let [abbreviation (filter
                         #(= (:tag %) :abbreviation)
                         (:content etd))]
     (get-in (nth abbreviation 0) [:content 0])))
 
-(defn get-minutes-from-etd [etd]
+(defn get-minutes-from-etd
+  [etd]
   (map
     #(get-in % [:content 0 :content 0])
     (filter
       #(= (:tag %) :estimate)
       (:content etd))))
 
-(defn get-etds [body]
+(defn get-direction-from-etd
+  [etd]
+  (map
+    #(get-in % [:content 0 :content 0])
+    (filter
+      #(= (:tag %) :estimate)
+      (:content etd))))
+
+
+
+(defn flatten-etd
+  [etd]
+  (reduce
+    (fn
+      [res entry]
+      (if (= (:tag entry) :estimate)
+          res
+          (conj res {(:tag entry) (get-in entry [:content 0])})))
+    {}
+    (:content etd)))
+
+(defn flatten-estimates
+  [etd]
+  (map
+    flatten-etd
+    (filter
+      #(= (:tag %) :estimate)
+      (:content etd))))
+
+(defn flt
+  [etd]
+  (conj
+    (flatten-etd etd)
+    {:estimates (flatten-estimates etd)}))
+
+(defn get-etds
+  [body]
   (->>
     body
     xml-seq
     (filter #(= (:tag %) :etd))))
 
-(defn gdt [body]
+(defn gdt
+  [body]
   (map
-    (fn [etd]
-      { :code (get-code-from-etd etd)
-       :departures (get-minutes-from-etd etd)})
+    flt
     (get-etds body)))
 
 (defn get-departure-times [body]
