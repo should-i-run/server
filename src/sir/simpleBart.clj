@@ -113,5 +113,3 @@
   {:status 200
     :headers {"Content-Type" "application/json"}
     :body (generate-string (map fetch-station (bartStations/get-closest-stations loc)))})
-
-;(fetch-station {:abbr "pitt"})

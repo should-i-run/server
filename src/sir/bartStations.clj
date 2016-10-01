@@ -27,6 +27,7 @@
   (map
     (fn [station]
       (conj station
+            {:entrances (bart/get-entrances-for-station station)}
             {:distance (calc-distance station lat lng)}))
     stations))
 
