@@ -50,7 +50,7 @@
 
 (defn find-closest-stations
   [body lat lng]
-  (take 3
+  (take 2
     (sort-by :distance
       (calc-distances
         (map flatten-station (get-stations body))
