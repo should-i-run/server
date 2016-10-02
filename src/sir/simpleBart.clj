@@ -78,7 +78,7 @@
 
 (defn get-departure-times [body]
   (do
-    (println (gdt body))
+    ;; (println (gdt body))
     (gdt body)))
 
 
@@ -99,11 +99,11 @@
                  fresh-data))]
     (let [{body :body error :error} data]
       (if error
-        (do (println "bart api error:" url error)
+        (do ;; (println "bart api error:" url error)
             {:status 418
              :body "bart api error"})
         (do
-          (println (build-url stationCode))
+          ;; (println (build-url stationCode))
           (conj station
                 {:departures
                             (get-departure-times (parse body))}))))))

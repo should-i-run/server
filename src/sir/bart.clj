@@ -176,5 +176,4 @@
    })
 
 (defn get-entrances-for-station [station]
-  (do (println (keyword (str/lower-case (:abbr station))))
-  (get entrance-data (keyword (str/lower-case (:abbr station))))))
+  (get entrance-data (keyword (str/lower-case (:abbr station)))))

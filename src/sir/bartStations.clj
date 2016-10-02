@@ -64,7 +64,7 @@
 
 (defn get-closest-stations
   [loc]
-  (do (println loc)
+  (do ;; (println loc)
     (let [url (build-url)
           data (if (cache/has? @bart-station-cache :stations)
                  (cache/lookup @bart-station-cache :stations)
@@ -73,5 +73,5 @@
                    fresh-data))]
       (let [{body :body error :error} data]
         (do
-          (println (find-closest-stations (parse body) (:lat loc) (:lng loc)))
+          ;; (println (find-closest-stations (parse body) (:lat loc) (:lng loc)))
         (find-closest-stations (parse body) (:lat loc) (:lng loc)))))))
