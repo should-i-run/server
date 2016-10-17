@@ -105,7 +105,7 @@
         (do
           ;; (println (build-url stationCode))
           (conj station
-                {:departures
+                {:lines
                             (get-departure-times (parse body))}))))))
 
 (defn fetch-all
