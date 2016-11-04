@@ -9,7 +9,7 @@
   (xml/parse
     (java.io.ByteArrayInputStream. (.getBytes s))))
 
-(def bart-cache (atom (cache/ttl-cache-factory {} :ttl (* 1000 60))))
+(def bart-cache (atom (cache/ttl-cache-factory {} :ttl (* 1000 15))))
 
 (defn cache-item-name [{code :originStationCode}]
   code)
