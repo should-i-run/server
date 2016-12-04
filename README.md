@@ -1,6 +1,6 @@
 # sir
 
-FIXME
+Backend server for Should I Run.
 
 ## Prerequisites
 
@@ -17,6 +17,9 @@ To start a hot-reloading server, run:
 ## Deploy
 `git push heroku master`
 
+## Add dependencies
+add to `project.clj` then run `lein install`.
+
 ## License
 
-Copyright © 2015 FIXME
+Copyright © 2016

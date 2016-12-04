@@ -14,6 +14,7 @@
             [sir.muni :as muni]
             [sir.simpleBart :as simpleBart]
             [sir.bartStations :as bartStations]
+            [sir.bartDirections :as bartDirections]
             [environ.core :refer [env]]
             [compojure.route :as route]))
 
@@ -108,6 +109,7 @@
   (POST "/stations" {body :body} (bartStations/get-closest-stations body))
   (POST "/" {body :body params :params} (fetch-trips body params))
   (POST "/bart" {body :body} (simpleBart/fetch-all body))
+  (POST "/bart/directions" {body :body} (bartDirections/fetch-all body))
   (route/not-found "Not Found"))
 
 (def app

@@ -53,6 +53,7 @@
   [body lat lng]
   (take 2
     (sort-by :distance
+      ;; TODO filter distances that are too far
       (calc-distances
         (map flatten-station (get-stations body))
         lat lng))))
